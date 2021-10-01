@@ -4,6 +4,11 @@ const Location = require("./locations");
 const setupDb = require("./setupDb");
 const express = require("express");
 
+const Handlebars = require("handlebars");
+const expressHandlebars = require("express-handlebars");
+const {
+    allowInsecurePrototypeAccess,
+} = require("@handlebars/allow-prototype-access");
 
 const app = express();
 
@@ -18,8 +23,33 @@ const app = express();
 */
 
 // in order for express to be able to read request bodies, we need to add the folowing code:
-// app.use(express.urlencoded({ extended: true}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true}));
+
+// setup our templating engine
+const handlebars = expressHandlebars({
+    handlebars: allowInsecurePrototypeAccess(Handlebars)
+});
+
+// set handlebars as the view engine
+app.engine("handlebars", handlebars);
+app.set("view engine", "handlebars");
+
+// an end pont to render the list of companies
+app.get("/", async (req, res) => {
+    const companies = await Company.findAll();
+    res.render("home", { companies });
+})
+
+app.get("/companydetails/:id", async (req, res) => {
+    const company = await Company.findByPk(req.params.id, {
+        include: [Location, Menu],
+    });
+    if (!company) {
+        return res.sendStatus(404);
+    }
+    res.render("company", { company });
+});
 
 
 
@@ -28,8 +58,6 @@ app.get('/companies', async (req, res) => {
     const companies = await Company.findAll();
     res.json(companies);
 });
-
-
 
 // get a specific company by its id and include all its menus
 app.get('/companies/:id', async (req, res) => {
