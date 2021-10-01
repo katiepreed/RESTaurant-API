@@ -24,3 +24,19 @@
         </label>
     </article>
 {{/each}}
+<h1> Create a Menu </h1>
+<form action="/companies/{{company.id}}/menus" method="POST">
+    <label for="title">Title:</label>
+    <input required name="title" id="title">
+    <button type="submit">Submit</button>
+</form>
+<h1> Create a Location </h1>
+<form action="/companies/{{company.id}}/locations" method="POST">
+    <label for="name">Name:</label>
+    <input required name="name" id="name">
+    <label for="capacity">Capacity:</label>
+    <input required type="number" name="capacity" id="capacity">
+    <label for="manager">Manager:</label>
+    <input required name="manager" id="manager">
+    <button type="submit">Submit</button>
+</form>

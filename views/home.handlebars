@@ -11,3 +11,12 @@
         </article>
     </a>
 {{/each}}
+
+<h1> Create a Company </h1>
+<form action="/companies" method="POST">
+    <label for="name">Name:</label>
+    <input required name="name" id="name">
+    <label for="logo Url">logo Url:</label>
+    <input required name="logoUrl" id="logo Url">
+    <button type="submit">Submit</button>
+</form>

@@ -26,6 +26,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 
+
 // setup our templating engine
 const handlebars = expressHandlebars({
     handlebars: allowInsecurePrototypeAccess(Handlebars)
@@ -34,6 +35,7 @@ const handlebars = expressHandlebars({
 // set handlebars as the view engine
 app.engine("handlebars", handlebars);
 app.set("view engine", "handlebars");
+
 
 // an end pont to render the list of companies
 app.get("/", async (req, res) => {
@@ -49,8 +51,7 @@ app.get("/companydetails/:id", async (req, res) => {
         return res.sendStatus(404);
     }
     res.render("company", { company });
-});
-
+})
 
 
 // get all the companies
@@ -71,13 +72,35 @@ app.get('/companies/:id', async (req, res) => {
     res.json(company);
 });
 
-
 // create a new company
-app.post('/companies', async (req, res) => {
+app.post("/companies", async (req, res) => {
     const { name, logoUrl } = req.body;
     await Company.create({ name, logoUrl});
-    res.sendStatus(200);
+    res.status(201).redirect("/");
 });
+
+// create a menu for a particlar company
+app.post("/companies/:id/menus", async (req, res) => {
+    const company = await Company.findByPk(req.params.id);
+    if (!company) {
+        return res.sendStatus(404);
+    }
+    const { title } = req.body;
+    await company.createMenu({ title });
+    res.status(201).redirect("/");
+})
+
+
+// create a location for a particlar company
+app.post("/companies/:id/locations", async (req, res) => {
+    const company = await Company.findByPk(req.params.id);
+    if (!company) {
+        return res.sendStatus(404);
+    }
+    const { name, capacity, manager } = req.body;
+    await company.createLocation({ name, capacity, manager });
+    res.status(201).redirect("/");
+})
 
 
 // delete a company
@@ -113,29 +136,6 @@ app.put('/companies/:id', async (req, res) => {
     // await Company.create({ name, logoUrl});
     res.sendStatus(200);
 });
-
-// create a menu for a particlar company
-app.post("/companies/:id/menus", async (req, res) => {
-    const company = await Company.findByPk(req.params.id);
-    if (!company) {
-        return res.sendStatus(404);
-    }
-    const { title } = req.body;
-    await company.createMenu({ title });
-    res.sendStatus(201);
-})
-
-
-// create a location for a particlar company
-app.post("/companies/:id/locations", async (req, res) => {
-    const company = await Company.findByPk(req.params.id);
-    if (!company) {
-        return res.sendStatus(404);
-    }
-    const { name, capacity, manager } = req.body;
-    await company.createLocation({ name, capacity, manager });
-    res.sendStatus(201);
-})
 
 // delete a location
 app.delete('/locations/:id', async (req, res) => {
